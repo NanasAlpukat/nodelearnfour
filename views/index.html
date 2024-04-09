@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>
+    <!-- login -->
+    <div id="login-container">
+      <h3>Forum Chat</h3>
+      <form id="loginForm">
+        <input type="submit" value="Join Sekarang" id="loginBtn">
+      </form>
+    </div>
+    
+    <!-- chat -->
+    <div id="chat-container">
+      <h3>Diskusi Terbka</h3>
+      <form id="chatForm">
+        <div id="messageList" style="height: 400px; border: black solid 1px; width: 300px;"></div>
+        <input type="text" id="messageBox">
+        <input type="submit" value="Kirim Pesan" id="sendMessage" >
+      </form>
+    </div>
+  </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const chatContainer = document.getElementById('chat-container');
+      const loginContainer = document.getElementById('login-container');
+      chatContainer.style.display = "none"
+      const btnLogin = document.getElementById('loginBtn');
+      const sendMess = document.getElementById('sendMessage');
+
+      const message = document.getElementById('messageBox')
+      const messageList = document.getElementById('messageList')
+      btnLogin.addEventListener("click", (e)=>{
+        e.preventDefault()
+        loginContainer.style.display = 'none'
+        chatContainer.style.display = "block"
+        // console.log('btn klik')
+      })
+      sendMess.addEventListener('click', (e) =>{
+        e.preventDefault();
+
+        // apabila ada value di dalam message
+        if(message.value){
+
+          const data = {
+            id : socket.id,
+            message: message.value
+          }
+          // message ini sama dengan di message file index.js
+
+          // socket io akan mengirim kan data message value ke socket on yang ada di file index.js
+          socket.emit('message',data)
+          let chatList = document.createElement("p")
+          chatList.style.fontSize = "24px"
+          chatList.textContent = message.value
+          messageList.appendChild(chatList)
+          message.value = ""
+        }
+      })
+
+      socket.on('message', (id, message) =>{
+        // console.log('data broadcase',data)
+        let broadcase = document.createElement("p")
+          broadcase.style.textAlign = "right"
+          broadcase.style.fontSize = "24px"
+          broadcase.textContent = `${message} * (${id})`
+          messageList.appendChild(broadcase)
+          
+      })
+
+    </script>
+</body>
+</html>
